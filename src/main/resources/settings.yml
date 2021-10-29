@@ -1,0 +1,4 @@
+data-saving:
+
+  enabled-default-providers:
+    health: true

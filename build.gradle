@@ -1,0 +1,33 @@
+group 'ImIllusion'
+version '1.0'
+
+apply plugin: 'java'
+targetCompatibility = 1.8
+sourceCompatibility = 1.8
+
+repositories {
+    jcenter()
+    mavenCentral()
+    maven { url = 'https://nexus.hc.to/content/repositories/pub_releases' }
+    maven { url = 'https://hub.spigotmc.org/nexus/content/groups/public/' }
+    maven { url = 'https://repo.codemc.org/repository/maven-public/' }
+    maven { url = "https://repo.dmulloy2.net/nexus/repository/public/" }
+    maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi'}
+    maven { url = 'https://mvn.intellectualsites.com/content/repositories/releases/'}
+    maven { url "https://repo.glaremasters.me/repository/concuncan/" }
+    maven { url 'https://jitpack.io' }
+
+    mavenLocal()
+
+}
+
+dependencies {
+
+    // compile group: 'net.md-5', name: 'bungeecord-api', version: '1.16-R0.4-SNAPSHOT'
+    implementation 'org.spigotmc:spigot:1.16.4-R0.1-SNAPSHOT'
+    implementation('org.projectlombok:lombok:1.18.20')
+    annotationProcessor("org.projectlombok:lombok:1.18.20")
+    // compile fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'redis.clients:jedis:3.7.0'
+
+}
