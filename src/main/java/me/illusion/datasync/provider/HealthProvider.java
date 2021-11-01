@@ -11,7 +11,7 @@ public class HealthProvider implements DataProvider<Double> {
 
     @Override
     public String getIdentifier() {
-        return "DataSync-DefaultHealth";
+        return "default-health";
     }
 
     @Override

@@ -10,7 +10,7 @@ import java.util.concurrent.CompletableFuture;
 public class SaturationProvider implements DataProvider<Float> {
     @Override
     public String getIdentifier() {
-        return "DataSync-DefaultSaturation";
+        return "default-saturation";
     }
 
     @Override

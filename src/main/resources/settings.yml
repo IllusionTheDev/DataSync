@@ -1,4 +1,7 @@
 data-saving:
-
-  enabled-default-providers:
-    health: true
+  enabled-providers:
+    default-health: true
+    default-food: true
+    default-gamemode: true
+    default-potion: true
+    default-saturation: true

@@ -7,21 +7,24 @@ import org.bukkit.entity.Player;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-public class FoodProvider implements DataProvider<Integer> {
+public class LevelProvider implements DataProvider<Integer> {
+
     @Override
     public String getIdentifier() {
-        return "default-food";
+        return "default-level";
     }
 
     @Override
     public CompletableFuture<Integer> get(Player player) {
-        return CompletableFuture.completedFuture(player.getFoodLevel());
+        int level = player.getLevel();
+        return CompletableFuture.completedFuture(level);
     }
 
     @Override
     public CompletableFuture<Void> apply(UUID uuid, Integer object) {
         Player player = Bukkit.getPlayer(uuid);
-        player.setFoodLevel(object);
-        return CompletableFuture.completedFuture(null);
+        player.setLevel(object);
+        return null;
     }
+    
 }

@@ -13,7 +13,7 @@ public class GamemodeProvider implements DataProvider<GameMode> {
 
     @Override
     public String getIdentifier() {
-        return "DataSync-DefaultGamemode";
+        return "default-gamemode";
     }
 
     @Override
