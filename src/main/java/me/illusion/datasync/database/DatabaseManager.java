@@ -1,15 +1,16 @@
 package me.illusion.datasync.database;
 
+import lombok.Getter;
 import me.illusion.datasync.DataSyncPlugin;
 import me.illusion.datasync.config.DatabasesFile;
 import me.illusion.datasync.database.fetching.FetchingDatabase;
 import me.illusion.datasync.database.messaging.MessagingDatabase;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Getter
 public class DatabaseManager {
 
     private FetchingDatabase fetchingDatabase;
@@ -40,12 +41,16 @@ public class DatabaseManager {
         fetchingDatabase.enable(fetchingSection.getConfigurationSection("login"));
         messagingDatabase.enable(messagingSection.getConfigurationSection("login"));
 
+        messagingDatabase.addCallback(bytes -> main.getPacketManager().read(bytes));
         main.getPacketManager().registerProcessor(messagingDatabase);
         return true;
     }
 
     private <T extends Database> T getDatabase(Class<T> clazz, String name) {
         Database database = availableDatabases.get(name);
+
+        if(database == null)
+            return null;
 
         if(!clazz.isInstance(database)) {
             System.out.println("[DataSync] Database " + name + " is not of type " + clazz.getSimpleName());

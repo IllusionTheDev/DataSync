@@ -20,9 +20,9 @@ public class HealthProvider implements DataProvider<Double> {
     }
 
     @Override
-    public CompletableFuture<Void> apply(UUID uuid, Double object) {
+    public CompletableFuture<Void> apply(UUID uuid, Object object) {
         Player player = Bukkit.getPlayer(uuid);
-        player.setHealth(object);
+        player.setHealth((Double) object);
 
         return CompletableFuture.completedFuture(null);
     }

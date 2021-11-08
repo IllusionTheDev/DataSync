@@ -23,8 +23,8 @@ public class PotionProvider implements DataProvider<SerializedPotionList> {
     }
 
     @Override
-    public CompletableFuture<Void> apply(UUID uuid, SerializedPotionList object) {
-        object.apply(Bukkit.getPlayer(uuid));
+    public CompletableFuture<Void> apply(UUID uuid, Object object) {
+        ((SerializedPotionList) object).apply(Bukkit.getPlayer(uuid));
 
         return CompletableFuture.completedFuture(null);
     }

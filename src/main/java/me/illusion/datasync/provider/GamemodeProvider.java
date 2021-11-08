@@ -3,7 +3,6 @@ package me.illusion.datasync.provider;
 import me.illusion.datasync.handler.data.DataProvider;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
-import org.bukkit.advancement.Advancement;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
@@ -22,9 +21,9 @@ public class GamemodeProvider implements DataProvider<GameMode> {
     }
 
     @Override
-    public CompletableFuture<Void> apply(UUID uuid, GameMode object) {
+    public CompletableFuture<Void> apply(UUID uuid, Object object) {
         Player player = Bukkit.getPlayer(uuid);
-        player.setGameMode(object);
+        player.setGameMode((GameMode) object);
 
         return CompletableFuture.completedFuture(null);
     }

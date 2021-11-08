@@ -14,7 +14,6 @@ public class PacketManager {
     private final PacketWaiter waiter;
 
     public PacketManager() {
-        registerIds();
         waiter = new PacketWaiter(this);
     }
 
@@ -29,9 +28,6 @@ public class PacketManager {
         identifiers.put(packetId, packetClass);
     }
 
-    private void registerIds() {
-
-    }
 
     public static byte getIdentifier(Class<? extends Packet> clazz) {
         for (Map.Entry<Byte, Class<? extends Packet>> entry : identifiers.entrySet()) {

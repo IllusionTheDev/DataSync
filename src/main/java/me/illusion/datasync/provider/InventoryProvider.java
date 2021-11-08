@@ -2,6 +2,7 @@ package me.illusion.datasync.provider;
 
 import me.illusion.datasync.handler.data.DataProvider;
 import me.illusion.datasync.provider.serializable.SerializedItemStackArray;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.PlayerInventory;
 
@@ -24,7 +25,15 @@ public class InventoryProvider implements DataProvider<SerializedItemStackArray>
     }
 
     @Override
-    public CompletableFuture<Void> apply(UUID uuid, SerializedItemStackArray object) {
-        return null;
+    public CompletableFuture<Void> apply(UUID uuid, Object object) {
+        SerializedItemStackArray array = (SerializedItemStackArray) object;
+
+        Player player = Bukkit.getPlayer(uuid);
+        PlayerInventory inventory = player.getInventory();
+
+        inventory.setStorageContents(array.getArray());
+
+
+        return CompletableFuture.completedFuture(null);
     }
 }

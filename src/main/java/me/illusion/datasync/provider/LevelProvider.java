@@ -21,9 +21,9 @@ public class LevelProvider implements DataProvider<Integer> {
     }
 
     @Override
-    public CompletableFuture<Void> apply(UUID uuid, Integer object) {
+    public CompletableFuture<Void> apply(UUID uuid, Object object) {
         Player player = Bukkit.getPlayer(uuid);
-        player.setLevel(object);
+        player.setLevel((Integer) object);
         return null;
     }
 

@@ -17,5 +17,5 @@ public interface DataProvider<T> {
         return CompletableFuture.completedFuture(null);
     }
 
-    CompletableFuture<Void> apply(UUID uuid, T object);
+    CompletableFuture<Void> apply(UUID uuid, Object object);
 }

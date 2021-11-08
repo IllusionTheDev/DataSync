@@ -19,9 +19,9 @@ public class SaturationProvider implements DataProvider<Float> {
     }
 
     @Override
-    public CompletableFuture<Void> apply(UUID uuid, Float object) {
+    public CompletableFuture<Void> apply(UUID uuid, Object object) {
         Player player = Bukkit.getPlayer(uuid);
-        player.setSaturation(object);
+        player.setSaturation((Float) object);
 
         return CompletableFuture.completedFuture(null);
     }

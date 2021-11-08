@@ -3,6 +3,7 @@ package me.illusion.datasync.handler;
 import me.illusion.datasync.DataSyncPlugin;
 import me.illusion.datasync.handler.data.DataProvider;
 import me.illusion.datasync.handler.data.StoredData;
+import me.illusion.datasync.packet.impl.PacketNotifySaving;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -11,36 +12,119 @@ public class StorageHandler {
 
     private final DataSyncPlugin main;
 
-    private final Map<String, DataProvider<Object>> providers = new HashMap<>();
+    private final Map<UUID, StoredData> data = new HashMap<>();
+
+    private final Map<String, DataProvider<?>> providers = new HashMap<>();
+    private final Set<String> invalidProviders = new HashSet<>();
 
     public StorageHandler(DataSyncPlugin main) {
         this.main = main;
     }
 
-    public void registerProvider(DataProvider<Object> provider) {
+    public void registerProvider(DataProvider<?> provider) {
         String id = provider.getIdentifier();
 
-        providers.put(id, provider);
+        if(main.getSettings().shouldEnable(id))
+            providers.put(id, provider);
     }
 
-    public CompletableFuture<Void> applyData(UUID uuid, StoredData data) {
+    public CompletableFuture<Void> load(UUID uuid) {
+        return main.getPacketCache()
+                .query(uuid)
+                .thenAccept(data -> {
+                    synchronized (this.data) {
+                        this.data.put(uuid, data);
+                        applyData(uuid, data);
+                    }
+                });
+    }
+
+    private void applyData(UUID uuid, StoredData data) {
         Set<CompletableFuture<Void>> futures = new HashSet<>();
-        for(Map.Entry<String, Object> entry : data.getData().entrySet()) {
+        for (Map.Entry<String, Object> entry : data.getData().entrySet()) {
             String identifier = entry.getKey();
             Object value = entry.getValue();
 
-            DataProvider<Object> provider = getProvider(identifier);
+            DataProvider<?> provider = getProvider(identifier);
 
-            if(provider == null)
+            if (provider == null) {
+                if (!invalidProviders.contains(identifier)) {
+                    invalidProviders.add(identifier);
+                    main.getLogger().warning("Invalid DataProvider: " + identifier + " (perhaps not loaded?)");
+                }
+
                 continue;
+            }
 
             futures.add(provider.apply(uuid, value));
         }
 
-        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
     }
 
-    private DataProvider<Object> getProvider(String name) {
+    public CompletableFuture<Void> save(UUID uuid) {
+        return CompletableFuture.runAsync(() -> {
+            synchronized (data) {
+                StoredData storedData = data.get(uuid);
+
+                if (storedData == null)
+                    return;
+
+                // --- SECTION START - Saving Data ---
+                Set<CompletableFuture<Void>> futures = new HashSet<>(); // Makes a collection of futures
+
+                for (Map.Entry<String, Object> entry : storedData.getData().entrySet()) { // Loops through all data, and their providers
+                    String identifier = entry.getKey(); // Obtains provider identifier
+
+                    DataProvider<?> provider = getProvider(identifier); // Obtain provider instance
+
+                    if (provider == null) { // Validate provider
+                        if (!invalidProviders.contains(identifier)) {
+                            invalidProviders.add(identifier);
+                            main.getLogger().warning("Invalid DataProvider: " + identifier + " (perhaps not loaded?)");
+                        }
+
+                        continue;
+                    }
+
+                    // Wait for provider to eventually return data
+                    CompletableFuture<Void> future = provider.get(uuid)
+                            .thenAccept(currentValue -> { // Which is then updated internally
+                                if (currentValue == null)
+                                    return;
+
+                                storedData.getData().put(identifier, currentValue);
+                            });
+
+                    futures.add(future);
+                }
+
+                CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join(); // Wait for all futures to finish
+
+                // --- SECTION END - Saving Data ---
+
+                // --- SECTION START - Updating all caches ---
+                PacketNotifySaving packet = new PacketNotifySaving(uuid, storedData);
+                main.getPacketManager().send(packet);
+                // --- SECTION END - Updating all caches ---
+
+                // --- SECTION START - Saving Data ---
+                main.getDatabaseManager().getFetchingDatabase().store(uuid, storedData);
+
+            }
+        });
+    }
+
+    public void quit(UUID uuid) {
+        save(uuid)
+                .thenRun(() -> {
+                    synchronized (data) {
+                        data.remove(uuid);
+                    }
+                });
+    }
+
+    private DataProvider<?> getProvider(String name) {
         return providers.get(name);
     }
 }

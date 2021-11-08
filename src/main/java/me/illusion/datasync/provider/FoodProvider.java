@@ -19,9 +19,9 @@ public class FoodProvider implements DataProvider<Integer> {
     }
 
     @Override
-    public CompletableFuture<Void> apply(UUID uuid, Integer object) {
+    public CompletableFuture<Void> apply(UUID uuid, Object object) {
         Player player = Bukkit.getPlayer(uuid);
-        player.setFoodLevel(object);
+        player.setFoodLevel((Integer) object);
         return CompletableFuture.completedFuture(null);
     }
 }

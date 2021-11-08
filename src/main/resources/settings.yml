@@ -10,6 +10,9 @@ data:
   # Adjust the time according to your database, longer time
   # will mean more RAM usage, but less frequent queries to the database.
 
+  # The cache can also help with data duplication issues, it is generally
+  # a good idea to keep it enabled, at least for 3 seconds.
+
   caching:
     enabled: true
 

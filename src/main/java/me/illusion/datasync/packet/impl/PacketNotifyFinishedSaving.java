@@ -1,6 +1,7 @@
 package me.illusion.datasync.packet.impl;
 
 import lombok.Getter;
+import me.illusion.datasync.handler.data.StoredData;
 import me.illusion.datasync.packet.Packet;
 
 import java.util.UUID;
@@ -16,9 +17,10 @@ public class PacketNotifyFinishedSaving extends Packet {
         uuid = readUUID();
     }
 
-    public PacketNotifyFinishedSaving(UUID uuid) {
+    public PacketNotifyFinishedSaving(UUID uuid, StoredData data) {
         this.uuid = uuid;
 
         writeUUID(uuid);
+        writeObject(data);
     }
 }
