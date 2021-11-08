@@ -1,7 +1,30 @@
-data-saving:
-  enabled-providers:
-    default-health: true
-    default-food: true
-    default-gamemode: true
-    default-potion: true
-    default-saturation: true
+data:
+
+  # Allows for data caching between servers,
+  # basically, each server has a small cache in RAM
+  # that is used for quicker access to data.
+
+  # If you do not have much RAM, you may want to disable
+  # this, if you have enough RAM, you can enable it.
+
+  # Adjust the time according to your database, longer time
+  # will mean more RAM usage, but less frequent queries to the database.
+
+  caching:
+    enabled: true
+
+    time:
+      unit: seconds
+      time: 30
+
+
+  # The following providers are used for synchronizing data,
+  # You can disable any of them, if you do not want to use them.
+
+  saving:
+    enabled-providers:
+      default-health: true     # Handles health
+      default-food: true       # Handles food, but not saturation
+      default-gamemode: true   # Handles gamemode
+      default-potion: true     # Handles all potions, their level and duration
+      default-saturation: true # Handles saturation

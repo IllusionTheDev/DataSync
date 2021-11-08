@@ -1,6 +1,11 @@
 package me.illusion.datasync.database.messaging;
 
+import me.illusion.datasync.database.Database;
 import me.illusion.datasync.packet.PacketProcessor;
 
-public interface MessagingDatabase extends PacketProcessor {
+import java.util.function.Consumer;
+
+public interface MessagingDatabase extends PacketProcessor, Database {
+
+    void addCallback(Consumer<byte[]> receivedPacket);
 }

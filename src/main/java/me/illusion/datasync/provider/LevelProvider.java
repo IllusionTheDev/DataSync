@@ -26,5 +26,5 @@ public class LevelProvider implements DataProvider<Integer> {
         player.setLevel(object);
         return null;
     }
-    
+
 }
