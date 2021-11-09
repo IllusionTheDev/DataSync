@@ -17,14 +17,14 @@ public class OperatorProvider implements DataProvider<Boolean> {
     @Override
     public CompletableFuture<Boolean> get(Player player) {
         boolean operator = player.isOp();
-        return CompletableFuture.completedFuture(null);
+        return CompletableFuture.completedFuture(operator);
     }
 
     @Override
     public CompletableFuture<Void> apply(UUID uuid, Object object) {
         Player player = Bukkit.getPlayer(uuid);
         player.setOp((Boolean) object);
-        return null;
+        return CompletableFuture.completedFuture(null);
     }
 
 }
