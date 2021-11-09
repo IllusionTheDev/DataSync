@@ -60,16 +60,16 @@ public class DataSyncPlugin extends JavaPlugin {
 
     private void registerProviders() {
         storageHandler.registerProvider(new AttributesProvider());
+        storageHandler.registerProvider(new EnderchestProvider());
+        storageHandler.registerProvider(new ExperienceProvider());
         storageHandler.registerProvider(new FoodProvider());
         storageHandler.registerProvider(new GamemodeProvider());
         storageHandler.registerProvider(new HealthProvider());
         storageHandler.registerProvider(new InventoryProvider());
         storageHandler.registerProvider(new LevelProvider());
+        storageHandler.registerProvider(new OperatorProvider());
         storageHandler.registerProvider(new PotionProvider());
         storageHandler.registerProvider(new SaturationProvider());
-        storageHandler.registerProvider(new EnderchestProvider());
-        storageHandler.registerProvider(new ExperienceProvider());
-        storageHandler.registerProvider(new OperatorProvider());
 
     }
 
