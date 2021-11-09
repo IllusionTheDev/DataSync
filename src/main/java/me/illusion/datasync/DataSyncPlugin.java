@@ -59,6 +59,7 @@ public class DataSyncPlugin extends JavaPlugin {
     }
 
     private void registerProviders() {
+        storageHandler.registerProvider(new AttributesProvider());
         storageHandler.registerProvider(new FoodProvider());
         storageHandler.registerProvider(new GamemodeProvider());
         storageHandler.registerProvider(new HealthProvider());
@@ -67,7 +68,9 @@ public class DataSyncPlugin extends JavaPlugin {
         storageHandler.registerProvider(new PotionProvider());
         storageHandler.registerProvider(new SaturationProvider());
         storageHandler.registerProvider(new EnderchestProvider());
-        storageHandler.registerProvider((new ExperienceProvider()));
+        storageHandler.registerProvider(new ExperienceProvider());
+        storageHandler.registerProvider(new OperatorProvider());
+
     }
 
     private void registerPackets() {
