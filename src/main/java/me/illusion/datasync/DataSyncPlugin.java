@@ -66,6 +66,7 @@ public class DataSyncPlugin extends JavaPlugin {
         storageHandler.registerProvider(new LevelProvider());
         storageHandler.registerProvider(new PotionProvider());
         storageHandler.registerProvider(new SaturationProvider());
+        storageHandler.registerProvider(new EnderchestProvider());
     }
 
     private void registerPackets() {
