@@ -75,7 +75,7 @@ public class RedisMessagingImpl extends BinaryJedisPubSub implements MessagingDa
                 return false;
             }
 
-            jedisUtil.getJedis().subscribe(this, CHANNEL);
+            new Thread(() -> jedisUtil.getJedis().subscribe(this, CHANNEL)).start(); // Locks thread entirely
             return true;
         }).exceptionally((throwable -> {
             throwable.printStackTrace();

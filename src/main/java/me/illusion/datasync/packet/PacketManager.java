@@ -1,5 +1,7 @@
 package me.illusion.datasync.packet;
 
+import me.illusion.datasync.util.HexUtil;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -66,6 +68,11 @@ public class PacketManager {
 
     public Packet read(byte[] bytes) {
         Class<? extends Packet> type = getPacketClass(bytes[0]);
+
+        if (type == null) {
+            System.out.println("Unknown packet type: 0x" + HexUtil.bytesToHex(bytes[0]));
+            return null;
+        }
 
         try {
             Packet packet = type.getConstructor(byte[].class).newInstance(bytes);
