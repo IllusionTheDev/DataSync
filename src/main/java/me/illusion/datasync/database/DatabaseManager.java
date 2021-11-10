@@ -9,6 +9,8 @@ import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 
 @Getter
 public class DatabaseManager {
@@ -28,7 +30,7 @@ public class DatabaseManager {
         availableDatabases.put(database.getName(), database);
     }
 
-    public boolean load(DatabasesFile file) {
+    public CompletableFuture<Boolean> load(DatabasesFile file) {
         ConfigurationSection fetchingSection = file.getFetchingSection();
         ConfigurationSection messagingSection = file.getMessagingSection();
 
@@ -36,14 +38,37 @@ public class DatabaseManager {
         messagingDatabase = getDatabase(MessagingDatabase.class, messagingSection.getString("type"));
 
         if(fetchingDatabase == null || messagingDatabase == null)
-            return false;
+            return CompletableFuture.completedFuture(false);
 
-        fetchingDatabase.enable(fetchingSection.getConfigurationSection("login"));
-        messagingDatabase.enable(messagingSection.getConfigurationSection("login"));
+        CompletableFuture<Boolean> fetching = fetchingDatabase.enable(fetchingSection.getConfigurationSection("login"));
+        CompletableFuture<Boolean> messaging = messagingDatabase.enable(messagingSection.getConfigurationSection("login"));
 
         messagingDatabase.addCallback(bytes -> main.getPacketManager().read(bytes));
         main.getPacketManager().registerProcessor(messagingDatabase);
-        return true;
+
+        return CompletableFuture.supplyAsync(() -> {
+            CountDownLatch latch = new CountDownLatch(2);
+            final boolean[] successValues = {false, false};
+
+            fetching.thenAccept(success -> {
+                successValues[0] = true;
+                latch.countDown();
+            });
+
+            messaging.thenAccept(success -> {
+                successValues[1] = true;
+                latch.countDown();
+            });
+
+            try {
+                latch.await();
+            }
+            catch (InterruptedException ignored) {
+
+            }
+
+            return successValues[0] && successValues[1];
+        });
     }
 
     private <T extends Database> T getDatabase(Class<T> clazz, String name) {

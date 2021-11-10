@@ -7,5 +7,4 @@ import java.util.function.Consumer;
 
 public interface MessagingDatabase extends PacketProcessor, Database {
 
-    void addCallback(Consumer<byte[]> receivedPacket);
 }

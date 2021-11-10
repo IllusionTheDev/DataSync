@@ -18,6 +18,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.concurrent.CompletableFuture;
+
 @Getter
 public class DataSyncPlugin extends JavaPlugin {
 
@@ -86,12 +88,14 @@ public class DataSyncPlugin extends JavaPlugin {
     }
 
     private void loadDatabases() {
-        boolean success = databaseManager.load(databaseConfig);
+        CompletableFuture<Boolean> success = databaseManager.load(databaseConfig);
 
-        if(!success) {
-            Bukkit.getConsoleSender().sendMessage("§c[DataSync] §cFailed to load databases!");
-            setEnabled(false);
-        }
+        success.thenAccept(loaded -> {
+            if (loaded) {
+                Bukkit.getConsoleSender().sendMessage("§c[DataSync] §cFailed to load databases!");
+                setEnabled(false);
+            }
+        });
 
 
     }
