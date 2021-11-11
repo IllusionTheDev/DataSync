@@ -17,7 +17,7 @@ public class GamemodeProvider implements DataProvider<GameMode> {
 
     @Override
     public CompletableFuture<GameMode> get(Player player) {
-        return CompletableFuture.completedFuture(player.getGameMode());
+        return CompletableFuture.supplyAsync(player::getGameMode);
     }
 
     @Override

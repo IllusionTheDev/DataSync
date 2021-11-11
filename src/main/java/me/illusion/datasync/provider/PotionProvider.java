@@ -19,7 +19,7 @@ public class PotionProvider implements DataProvider<SerializedPotionList> {
         SerializedPotionList list = new SerializedPotionList();
         list.serialize(player);
 
-        return CompletableFuture.completedFuture(list);
+        return CompletableFuture.supplyAsync(() -> list);
     }
 
     @Override

@@ -1,3 +1,7 @@
 main: me.illusion.datasync.DataSyncPlugin
 version: 2.0
 name: DataSyncV2
+
+commands:
+  datasyncwipe:
+    usage: /<command>

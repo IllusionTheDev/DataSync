@@ -17,7 +17,7 @@ public class LevelProvider implements DataProvider<Integer> {
     @Override
     public CompletableFuture<Integer> get(Player player) {
         int level = player.getLevel();
-        return CompletableFuture.completedFuture(level);
+        return CompletableFuture.supplyAsync(() -> level);
     }
 
     @Override

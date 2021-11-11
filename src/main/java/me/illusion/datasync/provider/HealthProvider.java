@@ -16,7 +16,7 @@ public class HealthProvider implements DataProvider<Double> {
 
     @Override
     public CompletableFuture<Double> get(Player player) {
-        return CompletableFuture.completedFuture(player.getHealth());
+        return CompletableFuture.supplyAsync(player::getHealth);
     }
 
     @Override

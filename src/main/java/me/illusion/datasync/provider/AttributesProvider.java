@@ -20,7 +20,7 @@ public class AttributesProvider implements DataProvider<SerializedAttributeList>
         SerializedAttributeList list = new SerializedAttributeList();
         list.save(player);
 
-        return CompletableFuture.completedFuture(list);
+        return CompletableFuture.supplyAsync(() -> list);
     }
 
     @Override

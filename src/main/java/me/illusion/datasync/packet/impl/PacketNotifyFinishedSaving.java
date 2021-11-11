@@ -17,10 +17,9 @@ public class PacketNotifyFinishedSaving extends Packet {
         uuid = readUUID();
     }
 
-    public PacketNotifyFinishedSaving(UUID uuid, StoredData data) {
+    public PacketNotifyFinishedSaving(UUID uuid) {
         this.uuid = uuid;
 
         writeUUID(uuid);
-        writeObject(data);
     }
 }

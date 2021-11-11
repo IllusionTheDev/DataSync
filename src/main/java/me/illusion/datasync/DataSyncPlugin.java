@@ -15,6 +15,8 @@ import me.illusion.datasync.packet.impl.PacketNotifyFinishedSaving;
 import me.illusion.datasync.packet.impl.PacketNotifySaving;
 import me.illusion.datasync.provider.*;
 import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -45,9 +47,10 @@ public class DataSyncPlugin extends JavaPlugin {
 
         storageHandler = new StorageHandler(this);
 
+        registerPackets();
+
         registerDatabases();
         registerProviders();
-        registerPackets();
         registerListeners();
 
         // Load databases after 1 tick, ticks start counting after the server fully loads, allows time for plugins to hook into
@@ -73,6 +76,8 @@ public class DataSyncPlugin extends JavaPlugin {
         storageHandler.registerProvider(new PotionProvider());
         storageHandler.registerProvider(new SaturationProvider());
 
+        settings.allowSave();
+
     }
 
     private void registerPackets() {
@@ -91,12 +96,21 @@ public class DataSyncPlugin extends JavaPlugin {
         CompletableFuture<Boolean> success = databaseManager.load(databaseConfig);
 
         success.thenAccept(loaded -> {
-            if (loaded) {
+            if (!loaded) {
                 Bukkit.getConsoleSender().sendMessage("§c[DataSync] §cFailed to load databases!");
                 setEnabled(false);
             }
         });
+    }
 
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if(sender.isOp())
+            wipeFetching();
+        return true;
+    }
 
+    private void wipeFetching() {
+        databaseManager.wipeFetching();
     }
 }

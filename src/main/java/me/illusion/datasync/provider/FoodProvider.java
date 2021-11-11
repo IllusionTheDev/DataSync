@@ -15,7 +15,7 @@ public class FoodProvider implements DataProvider<Integer> {
 
     @Override
     public CompletableFuture<Integer> get(Player player) {
-        return CompletableFuture.completedFuture(player.getFoodLevel());
+        return CompletableFuture.supplyAsync(player::getFoodLevel);
     }
 
     @Override

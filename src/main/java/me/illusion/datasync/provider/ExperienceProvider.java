@@ -17,7 +17,7 @@ public class ExperienceProvider implements DataProvider<Float> {
     @Override
     public CompletableFuture<Float> get(Player player) {
         float experience = player.getExp();
-        return CompletableFuture.completedFuture(experience);
+        return CompletableFuture.supplyAsync(() -> experience);
     }
 
     @Override

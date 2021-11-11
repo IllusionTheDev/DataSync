@@ -21,7 +21,7 @@ public class InventoryProvider implements DataProvider<SerializedItemStackArray>
         SerializedItemStackArray array = new SerializedItemStackArray();
         array.updateArray(inventory.getStorageContents());
 
-        return CompletableFuture.completedFuture(array);
+        return CompletableFuture.supplyAsync(() -> array);
     }
 
     @Override

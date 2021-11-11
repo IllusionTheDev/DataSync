@@ -57,6 +57,20 @@ public class MySQLFetchingImpl extends SQLConnectionProvider implements Fetching
                 statement.setString(1, uuid.toString());
                 statement.setObject(2, data);
 
+                statement.executeUpdate();
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        });
+    }
+
+    @Override
+    public CompletableFuture<Void> wipe() {
+        return CompletableFuture.runAsync(() -> {
+            connection = get();
+
+            try(PreparedStatement statement = connection.prepareStatement("DROP TABLE " + TABLE_NAME)) {
+                statement.executeUpdate();
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
             }
@@ -90,7 +104,6 @@ public class MySQLFetchingImpl extends SQLConnectionProvider implements Fetching
                 return null;
             }
 
-            System.out.println("Reviving dead connection");
             loadConnection();
             return fetchSync(uuid, true);
         }

@@ -31,10 +31,12 @@ public class SettingsFile extends YMLBase {
 
         if(!enabledProvidersSection.contains(providerId)) {
             enabledProvidersSection.addDefault(providerId, true);
-
-            CompletableFuture.runAsync(this::save); // Todo: Not call this 200 times (cache for a bit for less IO)
         }
         return enabledProvidersSection.getBoolean(providerId, true);
+    }
+
+    public void allowSave() {
+        CompletableFuture.runAsync(this::save);
     }
 
 

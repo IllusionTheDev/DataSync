@@ -51,17 +51,23 @@ public class PacketManager {
     public CompletableFuture<Void> send(Packet packet) {
         Set<CompletableFuture<Void>> futures = new HashSet<>();
 
-        for (PacketProcessor processor : processors)
-            futures.add(processor.send(packet));
+        try {
+             for (PacketProcessor processor : processors)
+                 futures.add(processor.send(packet));
 
-        byte id = packet.getIdentifier();
-        List<PacketHandler<Packet>> handler = handlers.get(id);
+             byte id = packet.getIdentifier();
+             List<PacketHandler<Packet>> handler = handlers.get(id);
 
-        if (handler == null)
-            return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+             if (handler == null)
+                 return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
 
-        for (PacketHandler<Packet> packetHandler : handler)
-            packetHandler.onSend(packet);
+             for (PacketHandler<Packet> packetHandler : handler)
+                 packetHandler.onSend(packet);
+         } catch (Exception e) {
+             e.printStackTrace();
+
+         }
+
 
         return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
     }

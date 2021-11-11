@@ -15,13 +15,14 @@ public class JedisUtil {
         else
             jedisPool = new JedisPool(ip, Integer.parseInt(port));
 
-        System.out.println(jedisPool);
 
         this.password = password;
 
         try {
-            getJedis();
+            Jedis jedis = getJedis();
+            jedisPool.returnResource(jedis);
         } catch (Exception exception) {
+            exception.printStackTrace();
             return false;
         }
         return true;

@@ -84,4 +84,10 @@ public class DatabaseManager {
 
         return clazz.cast(database);
     }
+
+    public void wipeFetching() {
+        fetchingDatabase.wipe().thenRun(() -> {
+            System.out.println("[DataSync] Fetching database wiped");
+        });
+    }
 }

@@ -15,7 +15,7 @@ public class SaturationProvider implements DataProvider<Float> {
 
     @Override
     public CompletableFuture<Float> get(Player player) {
-        return CompletableFuture.completedFuture(player.getSaturation());
+        return CompletableFuture.supplyAsync(player::getSaturation);
     }
 
     @Override

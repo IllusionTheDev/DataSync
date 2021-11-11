@@ -65,7 +65,7 @@ public class RedisMessagingImpl extends BinaryJedisPubSub implements MessagingDa
         jedisUtil = new JedisUtil();
 
         return CompletableFuture.supplyAsync(() -> {
-            String ip = section.getString("ip");
+            String ip = section.getString("host");
             String port = section.getString("port");
             String password = section.getString("password");
 

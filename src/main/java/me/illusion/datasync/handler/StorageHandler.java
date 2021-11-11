@@ -3,10 +3,14 @@ package me.illusion.datasync.handler;
 import me.illusion.datasync.DataSyncPlugin;
 import me.illusion.datasync.handler.data.DataProvider;
 import me.illusion.datasync.handler.data.StoredData;
+import me.illusion.datasync.packet.impl.PacketNotifyFinishedSaving;
 import me.illusion.datasync.packet.impl.PacketNotifySaving;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 
 public class StorageHandler {
 
@@ -33,6 +37,11 @@ public class StorageHandler {
                 .query(uuid)
                 .thenAccept(data -> {
                     synchronized (this.data) {
+                        if(data == null) {
+                            this.data.put(uuid, createNewData(uuid));
+                            return;
+                        }
+
                         this.data.put(uuid, data);
                         applyData(uuid, data);
                     }
@@ -87,12 +96,10 @@ public class StorageHandler {
                         continue;
                     }
 
-                    // Wait for provider to eventually return data
-                    CompletableFuture<Void> future = provider.get(uuid)
-                            .thenAccept(currentValue -> { // Which is then updated internally
-                                if (currentValue == null)
-                                    return;
 
+                    // Wait for provider to eventually return data
+                    CompletableFuture<Void> future = provider.get(Bukkit.getPlayer(uuid))
+                            .thenAccept(currentValue -> { // Which is then updated internally
                                 storedData.getData().put(identifier, currentValue);
                             });
 
@@ -100,6 +107,9 @@ public class StorageHandler {
                 }
 
                 CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join(); // Wait for all futures to finish
+
+                CountDownLatch latch = new CountDownLatch(1); // Create a latch
+
 
                 // --- SECTION END - Saving Data ---
 
@@ -109,9 +119,26 @@ public class StorageHandler {
                 // --- SECTION END - Updating all caches ---
 
                 // --- SECTION START - Saving Data ---
-                main.getDatabaseManager().getFetchingDatabase().store(uuid, storedData);
+
+                main.getDatabaseManager().getFetchingDatabase().store(uuid, storedData)
+                        .thenRun(() -> {
+                            PacketNotifyFinishedSaving packet2 = new PacketNotifyFinishedSaving(uuid);
+                            main.getPacketManager().send(packet2)
+                                    .thenRun(latch::countDown);
+                        }); // When the database is done, count down the latch
+
+                try {
+                    latch.await(); // Wait for the latch to count down
+                } catch (InterruptedException ignored) {
+
+                }
+
 
             }
+        }).exceptionally(throwable -> {
+            main.getLogger().warning("Failed to save data for " + uuid.toString() + ": " + throwable.getMessage());
+            throwable.printStackTrace();
+            return null;
         });
     }
 
@@ -122,6 +149,23 @@ public class StorageHandler {
                         data.remove(uuid);
                     }
                 });
+    }
+
+    public StoredData createNewData(UUID uuid) {
+        //UUID uuid = player.getUniqueId();
+
+        Map<String, Object> map = new HashMap<>();
+        try {
+            for(Map.Entry<String, DataProvider<?>> entry : providers.entrySet()) {
+                map.put(entry.getKey(), entry.getValue().get(Bukkit.getPlayer(uuid)));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+
+        return new StoredData(uuid, map);
     }
 
     private DataProvider<?> getProvider(String name) {

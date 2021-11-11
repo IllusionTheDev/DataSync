@@ -31,8 +31,19 @@ public class PacketCache {
                 .subscribe(PacketNotifySaving.class, new PacketHandler<PacketNotifySaving>() {
                     @Override
                     public void onReceive(PacketNotifySaving packet) {
+                        System.out.println("DataSync - Received notification of saving");
+
                         save(packet.getUuid(), packet.getData());
                         unavailableIds.add(packet.getUuid());
+                    }
+                });
+
+        main.getPacketManager()
+                .subscribe(PacketNotifyFinishedSaving.class, new PacketHandler<PacketNotifyFinishedSaving>() {
+                    @Override
+                    public void onReceive(PacketNotifyFinishedSaving packet) {
+                        System.out.println("DataSync - Received notification of finished saving");
+                        unavailableIds.remove(packet.getUuid());
                     }
                 });
     }
@@ -58,14 +69,13 @@ public class PacketCache {
         }
 
         return CompletableFuture.supplyAsync(() -> {
-            if (unavailableIds.contains(uuid))
-
+            if (unavailableIds.contains(uuid)) {
                 main.getPacketManager().await(PacketNotifyFinishedSaving.class, packet -> packet.getUuid().equals(uuid));
-
+            }
 
             return main.getDatabaseManager().getFetchingDatabase().fetch(uuid)
                     .thenApply(data -> {
-                        if (cache != null)
+                        if (cache != null && data != null)
                             cache.put(uuid, data);
 
                         return data;

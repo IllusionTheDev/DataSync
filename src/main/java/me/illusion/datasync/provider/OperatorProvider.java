@@ -17,7 +17,7 @@ public class OperatorProvider implements DataProvider<Boolean> {
     @Override
     public CompletableFuture<Boolean> get(Player player) {
         boolean operator = player.isOp();
-        return CompletableFuture.completedFuture(operator);
+        return CompletableFuture.supplyAsync(() -> operator);
     }
 
     @Override

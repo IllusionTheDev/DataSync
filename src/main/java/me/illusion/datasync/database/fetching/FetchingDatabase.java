@@ -12,4 +12,6 @@ public interface FetchingDatabase extends Database {
 
     CompletableFuture<Void> store(UUID uuid, StoredData data);
 
+    CompletableFuture<Void> wipe();
+
 }
