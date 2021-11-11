@@ -127,8 +127,10 @@ public class MySQLFetchingImpl extends SQLConnectionProvider implements Fetching
             connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + "?autoreconnect=true", username, password);
             connection.createStatement().execute(CREATE_TABLE);
             return true;
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
+            // We know it's not loaded, so we can safely ignore it, as the plugin will not run any further
+
+            // e.printStackTrace();
             return false;
         }
     }

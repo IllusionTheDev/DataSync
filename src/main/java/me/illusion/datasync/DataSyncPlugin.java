@@ -98,7 +98,7 @@ public class DataSyncPlugin extends JavaPlugin {
 
         success.thenAccept(loaded -> {
             if (!loaded) {
-                Bukkit.getConsoleSender().sendMessage("§c[DataSync] §cFailed to load databases!");
+                getLogger().warning("Failed to load databases!"); // made with copilot so don't bother me for this
                 setEnabled(false);
             }
         });

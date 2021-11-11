@@ -70,8 +70,6 @@ public class RedisMessagingImpl extends BinaryJedisPubSub implements MessagingDa
             String password = section.getString("password");
 
             if (!jedisUtil.connect(ip, port, password)) {
-                main.getLogger().warning("Could not connect to Jedis");
-                Bukkit.getPluginManager().disablePlugin(main);
                 return false;
             }
 
