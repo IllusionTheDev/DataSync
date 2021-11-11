@@ -72,6 +72,8 @@ public class StorageHandler {
     }
 
     public CompletableFuture<Void> save(UUID uuid) {
+        Player player = Bukkit.getPlayer(uuid);
+
         return CompletableFuture.runAsync(() -> {
             synchronized (data) {
                 StoredData storedData = data.get(uuid);
@@ -98,7 +100,7 @@ public class StorageHandler {
 
 
                     // Wait for provider to eventually return data
-                    CompletableFuture<Void> future = provider.get(Bukkit.getPlayer(uuid))
+                    CompletableFuture<Void> future = provider.get(player)
                             .thenAccept(currentValue -> { // Which is then updated internally
                                 storedData.getData().put(identifier, currentValue);
                             });

@@ -27,6 +27,7 @@ public class PacketManager {
         if (identifiers.containsKey(packetId))
             throw new UnsupportedOperationException("Packet identifier for packet " + packetClass.getSimpleName() + " is already registered. ");
 
+        System.out.println("Registered packet " + packetClass.getSimpleName() + " with identifier 0x" + HexUtil.bytesToHex(packetId));
         identifiers.put(packetId, packetClass);
     }
 
@@ -51,15 +52,20 @@ public class PacketManager {
     public CompletableFuture<Void> send(Packet packet) {
         Set<CompletableFuture<Void>> futures = new HashSet<>();
 
+        System.out.println("Created futures");
         try {
+            System.out.println(processors.size());
              for (PacketProcessor processor : processors)
                  futures.add(processor.send(packet));
 
+            System.out.println("Added futures");
              byte id = packet.getIdentifier();
              List<PacketHandler<Packet>> handler = handlers.get(id);
 
+            System.out.println("Obtained handlers " + (handler == null ? 0 : handler.size()) + " for packet id 0x" + HexUtil.bytesToHex(id));
+
              if (handler == null)
-                 return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+                 return CompletableFuture.runAsync(() -> CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join());
 
              for (PacketHandler<Packet> packetHandler : handler)
                  packetHandler.onSend(packet);
@@ -69,7 +75,7 @@ public class PacketManager {
          }
 
 
-        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        return CompletableFuture.runAsync(() -> CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join());
     }
 
     public Packet read(byte[] bytes) {
@@ -99,6 +105,7 @@ public class PacketManager {
     public <T extends Packet> void subscribe(Class<T> packetClass, PacketHandler<T> handler) {
         byte identifier = getIdentifier(packetClass);
 
+        System.out.println("Subscribed to packet " + packetClass.getSimpleName() + " with identifier 0x" + HexUtil.bytesToHex(identifier));
         handlers.putIfAbsent(identifier, new ArrayList<>());
         handlers.get(identifier).add((PacketHandler<Packet>) handler);
     }

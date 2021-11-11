@@ -37,6 +37,8 @@ public class DataSyncPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        registerPackets();
+
         settings = new SettingsFile(this);
         databaseConfig = new DatabasesFile(this);
 
@@ -47,7 +49,6 @@ public class DataSyncPlugin extends JavaPlugin {
 
         storageHandler = new StorageHandler(this);
 
-        registerPackets();
 
         registerDatabases();
         registerProviders();
