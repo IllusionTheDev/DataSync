@@ -77,6 +77,7 @@ public class DataSyncPlugin extends JavaPlugin {
         storageHandler.registerProvider(new HealthProvider());
         storageHandler.registerProvider(new InventoryProvider());
         storageHandler.registerProvider(new LevelProvider());
+        storageHandler.registerProvider(new LocationProvider());
         storageHandler.registerProvider(new OperatorProvider());
         storageHandler.registerProvider(new PotionProvider());
         storageHandler.registerProvider(new SaturationProvider());
