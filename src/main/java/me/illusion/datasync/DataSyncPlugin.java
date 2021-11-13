@@ -4,6 +4,7 @@ import lombok.Getter;
 import me.illusion.datasync.config.DatabasesFile;
 import me.illusion.datasync.config.SettingsFile;
 import me.illusion.datasync.database.DatabaseManager;
+import me.illusion.datasync.database.fetching.impl.MongoDBFetchingImpl;
 import me.illusion.datasync.database.fetching.impl.MySQLFetchingImpl;
 import me.illusion.datasync.database.messaging.impl.RedisMessagingImpl;
 import me.illusion.datasync.handler.PacketCache;
@@ -15,8 +16,10 @@ import me.illusion.datasync.packet.impl.PacketNotifyFinishedSaving;
 import me.illusion.datasync.packet.impl.PacketNotifySaving;
 import me.illusion.datasync.provider.*;
 import org.bukkit.Bukkit;
+import org.bukkit.advancement.Advancement;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -61,6 +64,7 @@ public class DataSyncPlugin extends JavaPlugin {
 
     private void registerDatabases() {
         databaseManager.registerDatabase(new MySQLFetchingImpl());
+        databaseManager.registerDatabase(new MongoDBFetchingImpl());
         databaseManager.registerDatabase(new RedisMessagingImpl(this));
     }
 

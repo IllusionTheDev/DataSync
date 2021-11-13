@@ -29,5 +29,7 @@ dependencies {
     annotationProcessor('org.projectlombok:lombok:1.18.22')
     // compile fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'redis.clients:jedis:3.7.0'
+    implementation group: 'org.mongodb', name: 'mongo-java-driver', version: '3.12.7'
+
 
 }
