@@ -1,3 +1,8 @@
+# You can make sub-groups for different gamemodes under the same database
+# Example: global, skyblock, survival - All will work under the same database, but the inventories will be different.
+group: global
+
+
 fetching:
   type: mysql
 

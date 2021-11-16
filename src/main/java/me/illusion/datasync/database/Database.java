@@ -8,5 +8,5 @@ public interface Database {
 
     String getName();
 
-    CompletableFuture<Boolean> enable(ConfigurationSection section);
+    CompletableFuture<Boolean> enable(ConfigurationSection section, String group);
 }

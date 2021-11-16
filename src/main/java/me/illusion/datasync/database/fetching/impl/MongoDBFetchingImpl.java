@@ -16,6 +16,8 @@ import java.util.concurrent.CompletableFuture;
 
 public class MongoDBFetchingImpl implements FetchingDatabase {
 
+    private String group;
+
     private String ip;
     private int port;
     private String database;
@@ -30,7 +32,9 @@ public class MongoDBFetchingImpl implements FetchingDatabase {
     }
 
     @Override
-    public CompletableFuture<Boolean> enable(ConfigurationSection section) {
+    public CompletableFuture<Boolean> enable(ConfigurationSection section, String group) {
+        this.group = "data_sync-" + group;
+
         return CompletableFuture.supplyAsync(() -> {
             ip = section.getString("ip");
             port = section.getInt("port");
@@ -41,8 +45,8 @@ public class MongoDBFetchingImpl implements FetchingDatabase {
                         new ConnectionString("mongodb://" + ip + ":" + port + "/" + database));
 
                 mongoDatabase = mongoClient.getDatabase(database);
-                mongoDatabase.createCollection("datasync");
-                mongoCollection = mongoDatabase.getCollection("datasync");
+                mongoDatabase.createCollection(this.group);
+                mongoCollection = mongoDatabase.getCollection(this.group);
             } catch (Exception e) {
                 e.printStackTrace();
                 return false;
@@ -80,7 +84,7 @@ public class MongoDBFetchingImpl implements FetchingDatabase {
     public CompletableFuture<Void> wipe() {
         return CompletableFuture.runAsync(() -> {
             mongoCollection.drop();
-            mongoDatabase.createCollection("datasync");
+            mongoDatabase.createCollection(group);
         });
     }
 

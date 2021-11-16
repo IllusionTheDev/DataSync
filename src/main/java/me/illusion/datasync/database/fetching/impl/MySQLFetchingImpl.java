@@ -17,11 +17,11 @@ import java.util.concurrent.CompletableFuture;
 
 public class MySQLFetchingImpl extends SQLConnectionProvider implements FetchingDatabase {
 
-    private static final String TABLE_NAME = "data_sync";
+    private String TABLE_NAME = "data_sync";
 
-    private static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (uuid VARCHAR(36), data MEDIUMBLOB, PRIMARY KEY (uuid));";
-    private static final String SERIALIZE_STRING = "INSERT INTO " + TABLE_NAME + " (uuid, data) VALUES (?, ?) ON DUPLICATE KEY UPDATE uuid=VALUES(uuid), data=VALUES(data);";
-    private static final String DESERIALIZE_STRING = "SELECT data FROM " + TABLE_NAME + " WHERE uuid = ?";
+    private static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS ? (uuid VARCHAR(36), data MEDIUMBLOB, PRIMARY KEY (uuid));";
+    private static final String SERIALIZE_STRING = "INSERT INTO ? (uuid, data) VALUES (?, ?) ON DUPLICATE KEY UPDATE uuid=VALUES(uuid), data=VALUES(data);";
+    private static final String DESERIALIZE_STRING = "SELECT data FROM ? WHERE uuid = ?";
 
     private String host;
     private int port;
@@ -35,7 +35,9 @@ public class MySQLFetchingImpl extends SQLConnectionProvider implements Fetching
     }
 
     @Override
-    public CompletableFuture<Boolean> enable(ConfigurationSection section) {
+    public CompletableFuture<Boolean> enable(ConfigurationSection section, String group) {
+        database = "data_sync-" + group;
+
         return CompletableFuture.supplyAsync(() -> {
             loadConfig(section);
 
@@ -54,8 +56,9 @@ public class MySQLFetchingImpl extends SQLConnectionProvider implements Fetching
             connection = get();
 
             try(PreparedStatement statement = connection.prepareStatement(SERIALIZE_STRING)) {
-                statement.setString(1, uuid.toString());
-                statement.setObject(2, data);
+                statement.setString(1, database);
+                statement.setString(2, uuid.toString());
+                statement.setObject(3, data);
 
                 statement.executeUpdate();
             } catch (SQLException throwables) {
@@ -81,7 +84,8 @@ public class MySQLFetchingImpl extends SQLConnectionProvider implements Fetching
         connection = get();
 
         try(PreparedStatement statement = connection.prepareStatement(DESERIALIZE_STRING)) {
-            statement.setString(1, uuid.toString());
+            statement.setString(1, database);
+            statement.setString(2, uuid.toString());
 
             try(ResultSet result = statement.executeQuery()) {
                 if (!result.next())

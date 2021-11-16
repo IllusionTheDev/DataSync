@@ -20,7 +20,7 @@ public class RedisMessagingImpl extends BinaryJedisPubSub implements MessagingDa
 
     private final List<Consumer<byte[]>> callbacks = new ArrayList<>();
 
-    private static final byte[] CHANNEL = getBytes("datasync");
+    private byte[] channel;
 
     private JedisUtil jedisUtil;
     private final DataSyncPlugin main;
@@ -34,7 +34,7 @@ public class RedisMessagingImpl extends BinaryJedisPubSub implements MessagingDa
         return CompletableFuture.runAsync(() -> {
             Jedis jedis = jedisUtil.getJedis();
 
-            jedis.publish(CHANNEL, packet.getAllBytes());
+            jedis.publish(channel, packet.getAllBytes());
 
             jedisUtil.getPool().returnResource(jedis);
         });
@@ -42,7 +42,7 @@ public class RedisMessagingImpl extends BinaryJedisPubSub implements MessagingDa
 
     @Override
     public void onMessage(byte[] channel, byte[] message) {
-        if (!Arrays.equals(channel, CHANNEL))
+        if (!Arrays.equals(channel, this.channel))
             return;
 
         for (Consumer<byte[]> callback : callbacks) {
@@ -61,9 +61,9 @@ public class RedisMessagingImpl extends BinaryJedisPubSub implements MessagingDa
     }
 
     @Override
-    public CompletableFuture<Boolean> enable(ConfigurationSection section) {
+    public CompletableFuture<Boolean> enable(ConfigurationSection section, String group) {
         jedisUtil = new JedisUtil();
-
+        channel = ("datasync-" + group).getBytes(StandardCharsets.UTF_8);
         return CompletableFuture.supplyAsync(() -> {
             String ip = section.getString("host");
             String port = section.getString("port");
@@ -73,7 +73,7 @@ public class RedisMessagingImpl extends BinaryJedisPubSub implements MessagingDa
                 return false;
             }
 
-            new Thread(() -> jedisUtil.getJedis().subscribe(this, CHANNEL)).start(); // Locks thread entirely
+            new Thread(() -> jedisUtil.getJedis().subscribe(this, channel)).start(); // Locks thread entirely
             return true;
         }).exceptionally((throwable -> {
             throwable.printStackTrace();

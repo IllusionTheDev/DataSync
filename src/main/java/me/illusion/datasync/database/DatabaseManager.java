@@ -40,8 +40,10 @@ public class DatabaseManager {
         if(fetchingDatabase == null || messagingDatabase == null)
             return CompletableFuture.completedFuture(false);
 
-        CompletableFuture<Boolean> fetching = fetchingDatabase.enable(fetchingSection.getConfigurationSection("login"));
-        CompletableFuture<Boolean> messaging = messagingDatabase.enable(messagingSection.getConfigurationSection("login"));
+        String group = file.getConfiguration().getString("group");
+
+        CompletableFuture<Boolean> fetching = fetchingDatabase.enable(fetchingSection.getConfigurationSection("login"), group);
+        CompletableFuture<Boolean> messaging = messagingDatabase.enable(messagingSection.getConfigurationSection("login"), group);
 
         messagingDatabase.addCallback(bytes -> main.getPacketManager().read(bytes));
         main.getPacketManager().registerProcessor(messagingDatabase);
