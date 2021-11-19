@@ -17,7 +17,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class MySQLFetchingImpl extends SQLConnectionProvider implements FetchingDatabase {
 
-    private String TABLE_NAME = "data_sync";
+    private String table = "data_sync";
 
     private static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS ? (uuid VARCHAR(36), data MEDIUMBLOB, PRIMARY KEY (uuid));";
     private static final String SERIALIZE_STRING = "INSERT INTO ? (uuid, data) VALUES (?, ?) ON DUPLICATE KEY UPDATE uuid=VALUES(uuid), data=VALUES(data);";
@@ -36,7 +36,7 @@ public class MySQLFetchingImpl extends SQLConnectionProvider implements Fetching
 
     @Override
     public CompletableFuture<Boolean> enable(ConfigurationSection section, String group) {
-        database = "data_sync-" + group;
+        table = "data_sync-" + group;
 
         return CompletableFuture.supplyAsync(() -> {
             loadConfig(section);
@@ -56,7 +56,7 @@ public class MySQLFetchingImpl extends SQLConnectionProvider implements Fetching
             connection = get();
 
             try(PreparedStatement statement = connection.prepareStatement(SERIALIZE_STRING)) {
-                statement.setString(1, database);
+                statement.setString(1, table);
                 statement.setString(2, uuid.toString());
                 statement.setObject(3, data);
 
@@ -72,7 +72,7 @@ public class MySQLFetchingImpl extends SQLConnectionProvider implements Fetching
         return CompletableFuture.runAsync(() -> {
             connection = get();
 
-            try(PreparedStatement statement = connection.prepareStatement("DROP TABLE " + TABLE_NAME)) {
+            try(PreparedStatement statement = connection.prepareStatement("DROP TABLE " + table)) {
                 statement.executeUpdate();
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
@@ -84,7 +84,7 @@ public class MySQLFetchingImpl extends SQLConnectionProvider implements Fetching
         connection = get();
 
         try(PreparedStatement statement = connection.prepareStatement(DESERIALIZE_STRING)) {
-            statement.setString(1, database);
+            statement.setString(1, table);
             statement.setString(2, uuid.toString());
 
             try(ResultSet result = statement.executeQuery()) {
@@ -129,7 +129,10 @@ public class MySQLFetchingImpl extends SQLConnectionProvider implements Fetching
             Class.forName("com.mysql.jdbc.Driver");
 
             connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + "?autoreconnect=true", username, password);
-            connection.createStatement().execute(CREATE_TABLE);
+            try(PreparedStatement statement = connection.prepareStatement(CREATE_TABLE)) {
+                statement.setString(1, table);
+                statement.executeUpdate();
+            }
             return true;
         } catch (Exception ignored) {
             // We know it's not loaded, so we can safely ignore it, as the plugin will not run any further
