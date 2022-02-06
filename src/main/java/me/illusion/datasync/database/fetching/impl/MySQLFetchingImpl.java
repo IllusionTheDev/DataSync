@@ -72,7 +72,8 @@ public class MySQLFetchingImpl extends SQLConnectionProvider implements Fetching
         return CompletableFuture.runAsync(() -> {
             connection = get();
 
-            try(PreparedStatement statement = connection.prepareStatement("DROP TABLE " + table)) {
+            try(PreparedStatement statement = connection.prepareStatement("DROP TABLE ?")) {
+                statement.setString(1, table);
                 statement.executeUpdate();
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
