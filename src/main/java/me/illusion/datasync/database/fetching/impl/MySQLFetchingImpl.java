@@ -55,10 +55,9 @@ public class MySQLFetchingImpl extends SQLConnectionProvider implements Fetching
         return CompletableFuture.runAsync(() -> {
             connection = get();
 
-            try(PreparedStatement statement = connection.prepareStatement(SERIALIZE_STRING)) {
-                statement.setString(1, table);
-                statement.setString(2, uuid.toString());
-                statement.setObject(3, data);
+            try(PreparedStatement statement = connection.prepareStatement(SERIALIZE_STRING.replaceFirst("\\?", "'" + table + "'"))) {
+                statement.setString(1, uuid.toString());
+                statement.setObject(2, data);
 
                 statement.executeUpdate();
             } catch (SQLException throwables) {
@@ -72,8 +71,7 @@ public class MySQLFetchingImpl extends SQLConnectionProvider implements Fetching
         return CompletableFuture.runAsync(() -> {
             connection = get();
 
-            try(PreparedStatement statement = connection.prepareStatement("DROP TABLE ?")) {
-                statement.setString(1, table);
+            try(PreparedStatement statement = connection.prepareStatement("DROP TABLE '" + table + "'")) {
                 statement.executeUpdate();
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
@@ -84,9 +82,8 @@ public class MySQLFetchingImpl extends SQLConnectionProvider implements Fetching
     private StoredData fetchSync(UUID uuid, boolean fetchedOnce) {
         connection = get();
 
-        try(PreparedStatement statement = connection.prepareStatement(DESERIALIZE_STRING)) {
-            statement.setString(1, table);
-            statement.setString(2, uuid.toString());
+        try(PreparedStatement statement = connection.prepareStatement(DESERIALIZE_STRING.replaceFirst("\\?", "'" + table + "'"))) {
+            statement.setString(1, uuid.toString());
 
             try(ResultSet result = statement.executeQuery()) {
                 if (!result.next())
