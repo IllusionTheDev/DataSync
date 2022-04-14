@@ -2,6 +2,7 @@ package me.illusion.datasync.database.fetching.impl;
 
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientOptions;
+import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
@@ -40,9 +41,12 @@ public class MongoDBFetchingImpl implements FetchingDatabase {
             port = section.getInt("port");
             database = section.getString("database");
 
+            String username = section.getString("username", "");
+            String password = section.getString("password", "");
+
+
             try {
-                mongoClient = MongoClients.create(
-                        new ConnectionString("mongodb://" + ip + ":" + port + "/" + database));
+                mongoClient = MongoClients.create(new ConnectionString("mongodb://" + username + ":" + password + "@" + ip + ":" + port + "/" + database));
 
                 mongoDatabase = mongoClient.getDatabase(database);
                 mongoDatabase.createCollection(this.group);
